@@ -43,3 +43,8 @@ const gracefulShutdown = async (signal: string) => {
 
 process.on('SIGTERM', () => gracefulShutdown('SIGTERM'));
 process.on('SIGINT', () => gracefulShutdown('SIGINT'));
+
+// webhook worker - starts polling after db is connected
+// imported here not in app.ts because app.ts is used in tests without a real db
+import { startWebhookWorker } from "./jobs/webhookWorker";
+startWebhookWorker();

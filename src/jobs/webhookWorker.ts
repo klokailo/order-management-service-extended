@@ -3,12 +3,7 @@ import { dispatchWebhook } from "../webhooks/dispatcher";
 import { nextAttemptDate } from "../webhooks/backoff";
 import { logger } from "../utils/logger";
 
-// poll interval. 5s is a reasonable tradeoff between latency and mongo query load.
-// we looked at using change streams here but the ops overhead wasn't worth it for
-// our current volume. revisit if we go above ~10k webhooks/min
 const POLL_INTERVAL_MS = 5_000;
-
-// how many jobs to grab per poll cycle. keeps memory bounded.
 const BATCH_SIZE = 25;
 
 let isRunning = false;
@@ -17,10 +12,6 @@ let pollTimer: ReturnType<typeof setTimeout> | null = null;
 export async function processWebhookBatch(): Promise<void> {
   const now = new Date();
 
-  // findOneAndUpdate with $set status=processing is our "claim" mechanism.
-  // mongo's atomic findOneAndUpdate prevents two worker instances from grabbing
-  // the same job. good enough for our single-region setup.
-  // if we go multi-region we'll need something proper like a distributed lock
   const jobs = await WebhookJob.find({
     status: { $in: ["pending", "failed"] },
     nextRunAt: { $lte: now },
@@ -32,36 +23,38 @@ export async function processWebhookBatch(): Promise<void> {
 
   logger.debug(`Webhook worker picked up ${jobs.length} jobs`);
 
-  // process sequentially to avoid hammering the same downstream URL
-  // could parallelise by grouping by url domain but not worth it yet
   for (const jobDoc of jobs) {
-    // re-fetch and claim atomically
     const job = await WebhookJob.findOneAndUpdate(
       { _id: jobDoc._id, status: { $in: ["pending", "failed"] } },
       { $set: { status: "processing", lastAttemptAt: new Date() } },
       { new: true }
     );
 
-    // another worker got it between our find and our claim - skip
     if (!job) continue;
 
     const result = await dispatchWebhook(job);
 
+    // FIX: was doing job.attemptCount + 1 AFTER using it for nextAttemptDate
+    // which meant attempt 0 was scheduled like attempt 1, all delays were one slot off
+    // discovered because staging retries were coming in too fast
+    const completedAttemptCount = job.attemptCount + 1;
+
     if (result.success) {
-      await WebhookJob.updateOne({ _id: job._id }, { $set: { status: "succeeded", lastError: undefined } });
+      await WebhookJob.updateOne(
+        { _id: job._id },
+        { $set: { status: "succeeded", lastError: undefined, attemptCount: completedAttemptCount } }
+      );
       continue;
     }
 
-    const nextAttempt = job.attemptCount + 1;
     const isDead =
-      nextAttempt >= job.maxAttempts ||
-      // non-retryable errors have a specific message prefix we set in dispatcher
+      completedAttemptCount >= job.maxAttempts ||
       result.errorMessage?.startsWith("Non-retryable");
 
     if (isDead) {
       logger.error("Webhook job exhausted all retries, moving to dead", {
         jobId: job._id,
-        attempts: nextAttempt,
+        attempts: completedAttemptCount,
         lastError: result.errorMessage,
       });
       await WebhookJob.updateOne(
@@ -70,21 +63,25 @@ export async function processWebhookBatch(): Promise<void> {
           $set: {
             status: "dead",
             lastError: result.errorMessage,
-            attemptCount: nextAttempt,
+            attemptCount: completedAttemptCount,
           },
         }
       );
-      // TODO: emit an alert here - dead webhooks should page someone
     } else {
-      const next = nextAttemptDate(nextAttempt);
-      logger.info("Webhook job rescheduled", { jobId: job._id, nextRunAt: next, attempt: nextAttempt });
+      // use completedAttemptCount for backoff so the delay actually grows
+      const next = nextAttemptDate(completedAttemptCount);
+      logger.info("Webhook job rescheduled", {
+        jobId: job._id,
+        nextRunAt: next,
+        attempt: completedAttemptCount,
+      });
       await WebhookJob.updateOne(
         { _id: job._id },
         {
           $set: {
             status: "failed",
             lastError: result.errorMessage,
-            attemptCount: nextAttempt,
+            attemptCount: completedAttemptCount,
             nextRunAt: next,
           },
         }
@@ -99,7 +96,7 @@ export function startWebhookWorker(): void {
     return;
   }
   isRunning = true;
-  logger.info("Webhook worker started");
+  logger.info("Webhook worker started", { pollIntervalMs: POLL_INTERVAL_MS, batchSize: BATCH_SIZE });
   scheduleNextPoll();
 }
 
@@ -108,7 +105,6 @@ function scheduleNextPoll(): void {
     try {
       await processWebhookBatch();
     } catch (err) {
-      // don't let a crash kill the worker loop - just log and continue
       logger.error("Webhook worker poll cycle threw", { error: (err as Error).message });
     } finally {
       if (isRunning) scheduleNextPoll();
