@@ -1,0 +1,31 @@
+{
+  "openapi": "3.0.3",
+  "info": {
+    "title": "Order Management Service API",
+    "version": "1.4.0",
+    "description": "REST API for the Order Management microservice. See /docs for the interactive UI."
+  },
+  "servers": [
+    { "url": "http://localhost:3000", "description": "Local dev" },
+    { "url": "https://api-staging.example.com", "description": "Staging" }
+  ],
+  "paths": {
+    "/api/orders": {
+      "get": { "summary": "List orders", "tags": ["Orders"], "responses": { "200": { "description": "OK" } } },
+      "post": { "summary": "Create order", "tags": ["Orders"], "responses": { "201": { "description": "Created" } } }
+    },
+    "/api/orders/{id}": {
+      "get": { "summary": "Get order by ID", "tags": ["Orders"], "responses": { "200": { "description": "OK" } } },
+      "delete": { "summary": "Cancel order", "tags": ["Orders"], "responses": { "204": { "description": "No Content" } } }
+    },
+    "/api/orders/{id}/status": {
+      "patch": { "summary": "Update order status", "tags": ["Orders"], "responses": { "200": { "description": "OK" } } }
+    },
+    "/api/webhooks/stripe": {
+      "post": { "summary": "Stripe webhook receiver", "tags": ["Webhooks"], "responses": { "200": { "description": "OK" } } }
+    },
+    "/health": {
+      "get": { "summary": "Health check", "tags": ["Health"], "responses": { "200": { "description": "OK" } } }
+    }
+  }
+}

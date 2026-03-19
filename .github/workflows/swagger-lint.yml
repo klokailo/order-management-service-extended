@@ -1,0 +1,64 @@
+name: Swagger Spec Validation
+
+on:
+  pull_request:
+    paths:
+      - 'src/routes/**'
+      - 'src/controllers/**'
+      - 'src/config/swagger.ts'
+
+jobs:
+  validate-spec:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+      
+      - run: npm ci
+      
+      # Generate the spec from current code
+      - name: Export OpenAPI spec
+        run: npx ts-node scripts/export-spec.ts
+      
+      # Validate it's well-formed OpenAPI 3.0
+      # using swagger-cli because it catches $ref errors that jsdoc silently ignores
+      - name: Validate spec
+        run: npx @apidevtools/swagger-cli validate docs/openapi.json
+      
+      # Fail if any previously documented paths were removed
+      # This is a naive check but catches accidental deletions
+      # For a proper breaking change detector, look into oasdiff
+      - name: Check for removed paths (vs main)
+        run: |
+          git fetch origin main
+          if git show origin/main:docs/openapi.json > /tmp/main-spec.json 2>/dev/null; then
+            MAIN_PATHS=$(cat /tmp/main-spec.json | python3 -c "import sys,json; d=json.load(sys.stdin); print(len(d.get('paths',{})))")
+            PR_PATHS=$(cat docs/openapi.json | python3 -c "import sys,json; d=json.load(sys.stdin); print(len(d.get('paths',{})))")
+            echo "Main has $MAIN_PATHS paths, PR has $PR_PATHS paths"
+            if [ "$PR_PATHS" -lt "$MAIN_PATHS" ]; then
+              echo "ERROR: PR removes API paths. Check if this is intentional."
+              echo "If intentional, get sign-off from API consumers and update this check."
+              exit 1
+            fi
+          else
+            echo "No existing spec on main, skipping diff check"
+          fi
+
+  check-prod-config:
+    runs-on: ubuntu-latest
+    if: github.ref == 'refs/heads/main'
+    steps:
+      - uses: actions/checkout@v4
+      # make sure nobody committed ENABLE_SWAGGER_UI=true into the prod k8s config
+      - name: Ensure swagger UI disabled in prod
+        run: |
+          if grep -r "ENABLE_SWAGGER_UI=true" k8s/prod/ 2>/dev/null; then
+            echo "ERROR: ENABLE_SWAGGER_UI is set to true in prod k8s config!"
+            exit 1
+          fi
+          echo "OK: swagger UI correctly disabled in prod"
