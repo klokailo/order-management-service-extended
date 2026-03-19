@@ -1,21 +1,44 @@
-import mongoose, { Schema, Document } from 'mongoose';
+import mongoose from 'mongoose';
+import { updateIfCurrentPlugin } from 'mongoose-update-if-current';
 
-export interface IOrder extends Document {
-  customerId: string;
-  items: Array<{ productId: string; quantity: number; price: number }>;
-  status: 'PENDING' | 'PAID' | 'SHIPPED' | 'CANCELLED';
-  totalAmount: number;
+interface OrderAttrs {
+  userId: string;
+  status: string;
+  total: number;
 }
 
-const OrderSchema: Schema = new Schema({
-  customerId: { type: String, required: true },
-  items: [{
-    productId: { type: String, required: true },
-    quantity: { type: Number, required: true, min: 1 },
-    price: { type: Number, required: true }
-  }],
-  status: { type: String, enum: ['PENDING', 'PAID', 'SHIPPED', 'CANCELLED'], default: 'PENDING' },
-  totalAmount: { type: Number, required: true }
-}, { timestamps: true });
+export interface OrderDoc extends mongoose.Document {
+  userId: string;
+  status: string;
+  total: number;
+  version: number; 
+}
 
-export default mongoose.model<IOrder>('Order', OrderSchema);
+interface OrderModel extends mongoose.Model<OrderDoc> {
+  build(attrs: OrderAttrs): OrderDoc;
+}
+
+const orderSchema = new mongoose.Schema({
+  userId: { type: String, required: true },
+  status: { type: String, required: true, default: 'created' },
+  total: { type: Number, required: true }
+}, {
+  toJSON: {
+    transform(doc, ret) {
+      ret.id = ret._id;
+      delete ret._id;
+    }
+  }
+});
+
+// Configure Mongoose to use 'version' instead of '__v' for sanity, and inject OCC plugin
+orderSchema.set('versionKey', 'version');
+orderSchema.plugin(updateIfCurrentPlugin);
+
+orderSchema.statics.build = (attrs: OrderAttrs) => {
+  return new Order(attrs);
+};
+
+const Order = mongoose.model<OrderDoc, OrderModel>('Order', orderSchema);
+
+export { Order };

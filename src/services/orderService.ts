@@ -1,33 +1,27 @@
-import Order, { IOrder } from '../models/Order';
-import { eventPublisher } from '../events/publisher';
+import { Order } from '../models/Order';
 import { logger } from '../utils/logger';
 
 export class OrderService {
-  static async createOrder(data: Partial<IOrder>): Promise<IOrder> {
-    // FIX: Using Math.round to avoid JS floating point math errors (e.g., 0.1 + 0.2 = 0.30000000000000004)
-    // All prices should be calculated in cents.
-    const rawTotal = data.items?.reduce((sum, item) => sum + (item.price * item.quantity), 0) || 0;
-    const totalAmount = Math.round(rawTotal * 100) / 100;
+  static async updateOrderStatus(orderId: string, newStatus: string) {
+    const order = await Order.findById(orderId);
     
-    const order = new Order({
-      ...data,
-      totalAmount,
-      status: 'PENDING'
-    });
-    
-    const savedOrder = await order.save();
-    
-    eventPublisher.publish('order.created', {
-      orderId: savedOrder._id,
-      customerId: savedOrder.customerId,
-      items: savedOrder.items,
-      totalAmount: savedOrder.totalAmount
-    }).catch(err => logger.error('Failed to publish order.created event', { err }));
+    if (!order) {
+      throw new Error('Order not found');
+    }
 
-    return savedOrder;
-  }
+    order.status = newStatus;
 
-  static async getOrderById(id: string): Promise<IOrder | null> {
-    return await Order.findById(id);
+    try {
+      await order.save();
+      logger.info(`Order ${orderId} status updated to ${newStatus}`);
+      return order;
+    } catch (error: any) {
+      // If a concurrent update bumped the version, Mongoose throws a VersionError
+      if (error.name === 'VersionError') {
+        logger.warn(`Concurrency conflict detected for Order ${orderId}`);
+        throw new Error('Order was modified by another transaction. Please try again.');
+      }
+      throw error;
+    }
   }
 }
