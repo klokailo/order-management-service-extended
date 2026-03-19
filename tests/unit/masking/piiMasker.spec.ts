@@ -65,3 +65,18 @@ describe('maskPii', () => {
     expect(result).toContain('[JWT_REDACTED]');
   });
 });
+
+describe('regression fixes', () => {
+  it('does not add a space before last IP octet (broke JSON parsers)', () => {
+    const result = maskPii('origin: 192.168.1.42') as string;
+    expect(result).not.toContain(' 42');
+    expect(result).toContain('*.*.*.42');
+  });
+
+  it('preserves number types and does not coerce to string', () => {
+    const result = maskPii({ amount: 1099, qty: 3 }) as any;
+    expect(typeof result.amount).toBe('number');
+    expect(typeof result.qty).toBe('number');
+    expect(result.amount).toBe(1099);
+  });
+});

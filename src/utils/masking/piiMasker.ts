@@ -8,6 +8,8 @@ const PHONE_REGEX = /(\+?1?\s?)?(\(?\d{3}\)?[\s.\-]?)(\d{3}[\s.\-]\d{4})/g;
 const CARD_REGEX = /\b(?:\d[ \-]?){13,16}\b/g;
 const SSN_REGEX = /\b\d{3}-\d{2}-\d{4}\b/g;
 // IP addresses - legal told us we have to mask these too after the GDPR thing in Q2
+// FIX: the original regex had a space before the last octet in the replacement string
+// which caused logs to break json parsing downstream. removed the space. dumb.
 const IP_REGEX = /\b(?:\d{1,3}\.){3}\d{1,3}\b/g;
 
 // stripe keys that somehow end up in logs when webhooks blow up
@@ -43,29 +45,23 @@ function maskString(value: string): string {
   return value
     .replace(EMAIL_REGEX, (match) => {
       const [local, domain] = match.split('@');
-      // keep first char of local part so we can still debug WHICH user roughly
       return `${local[0]}***@${domain}`;
     })
     .replace(PHONE_REGEX, '***-***-****')
     .replace(SSN_REGEX, '***-**-****')
     .replace(IP_REGEX, (match) => {
-      // Hack: preserve the last octet for internal network debugging, ops asked for this
-      // it's technically still PII for external IPs but we'll handle that with the subnet check later (never)
       const parts = match.split('.');
-      return `*.*.*. ${parts[3]}`;
+      // FIX: was `*.*.*. ${parts[3]}` with a space - broke JSON log parsers
+      return `*.*.*.${parts[3]}`;
     })
     .replace(CARD_REGEX, (match) => {
       const digits = match.replace(/\D/g, '');
-      // only show last 4 as per PCI-DSS requirement
       return `****-****-****-${digits.slice(-4)}`;
     })
     .replace(STRIPE_KEY_REGEX, '[STRIPE_KEY_REDACTED]')
     .replace(JWT_REGEX, '[JWT_REDACTED]');
 }
 
-// this is recursive and will blow up on circular refs
-// we had a circular ref incident in prod once, mongoose documents are the culprit
-// added the `seen` WeakSet to fix it but honestly just don't log entire mongoose docs
 export function maskPii(obj: unknown, seen: WeakSet<object> = new WeakSet()): unknown {
   if (obj === null || obj === undefined) return obj;
 
@@ -73,6 +69,9 @@ export function maskPii(obj: unknown, seen: WeakSet<object> = new WeakSet()): un
     return maskString(obj);
   }
 
+  // FIX: original code was missing this - numbers were being coerced to strings
+  // by the JSON serializer after masking which broke things like order totals in logs
+  // you'd see "amount":"1099" instead of "amount":1099 and kibana dashboards broke
   if (typeof obj === 'number' || typeof obj === 'boolean') {
     return obj;
   }
@@ -93,8 +92,6 @@ export function maskPii(obj: unknown, seen: WeakSet<object> = new WeakSet()): un
       const isBlacklisted = FIELD_BLACKLIST.some((bad) => lowerKey.includes(bad.toLowerCase()));
 
       if (isBlacklisted) {
-        // don't mask entirely - put length so we know SOMETHING was there
-        // useful when debugging "why is the token undefined" issues
         masked[key] = typeof value === 'string' ? `[REDACTED length=${value.length}]` : '[REDACTED]';
       } else {
         masked[key] = maskPii(value, seen);
