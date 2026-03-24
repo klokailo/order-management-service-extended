@@ -1,0 +1,307 @@
+{
+  "description": "Manual graph seed for Phase 1 MVP benchmark. Ingest this into Neptune or your graph store before running evaluations.",
+  "nodes": [
+    {
+      "id": "repo:order-management-service",
+      "label": "Repo",
+      "properties": {
+        "name": "order-management-service",
+        "url": "https://github.com/UofT-CSC490-W2026/order-management-service",
+        "description": "Core microservice for processing and managing customer orders. Handles order lifecycle, Stripe payment webhooks, and RabbitMQ event publishing.",
+        "default_branch": "main"
+      }
+    },
+    {
+      "id": "repo:frontend-app",
+      "label": "Repo",
+      "properties": {
+        "name": "frontend-app",
+        "description": "Frontend application that integrates with the order-management-service backend API.",
+        "default_branch": "main"
+      }
+    },
+    {
+      "id": "doc:auth",
+      "label": "Doc",
+      "properties": {
+        "name": "auth.md",
+        "path": "docs/integration/auth.md",
+        "doc_type": "integration_guide",
+        "summary": "JWT authentication format, Authorization header, token claims (sub, role), 401 vs 403 error responses, correlation ID header."
+      }
+    },
+    {
+      "id": "doc:orders-api",
+      "label": "Doc",
+      "properties": {
+        "name": "orders-api.md",
+        "path": "docs/integration/orders-api.md",
+        "doc_type": "integration_guide",
+        "summary": "REST API for creating and retrieving orders. POST /api/orders request body, response shape, 201 status. Server-side totalAmount calculation."
+      }
+    },
+    {
+      "id": "doc:order-statuses",
+      "label": "Doc",
+      "properties": {
+        "name": "order-statuses.md",
+        "path": "docs/integration/order-statuses.md",
+        "doc_type": "integration_guide",
+        "summary": "Four order status values: PENDING, PAID, SHIPPED, CANCELLED. Status transition triggers. Eventual consistency warning after order creation."
+      }
+    },
+    {
+      "id": "doc:webhooks",
+      "label": "Doc",
+      "properties": {
+        "name": "webhooks.md",
+        "path": "docs/integration/webhooks.md",
+        "doc_type": "integration_guide",
+        "summary": "Stripe webhook endpoint POST /api/webhooks/stripe. Raw body requirement, stripe-signature header, handled events, orderId metadata requirement for payment linking."
+      }
+    },
+    {
+      "id": "doc:events",
+      "label": "Doc",
+      "properties": {
+        "name": "events.md",
+        "path": "docs/integration/events.md",
+        "doc_type": "integration_guide",
+        "summary": "RabbitMQ event publishing. Exchange name order_events, type topic. Routing key order.created. Fire-and-forget publishing, no guarantee of downstream side effects."
+      }
+    },
+    {
+      "id": "doc:error-handling",
+      "label": "Doc",
+      "properties": {
+        "name": "error-handling.md",
+        "path": "docs/integration/error-handling.md",
+        "doc_type": "integration_guide",
+        "summary": "HTTP status codes, error response shape {error: string}, webhook errors return plain text not JSON. Floating point pricing in dollars, Stripe uses cents. MongoDB non-ACID caveat."
+      }
+    },
+    {
+      "id": "doc:pagination",
+      "label": "Doc",
+      "properties": {
+        "name": "pagination.md",
+        "path": "docs/integration/pagination.md",
+        "doc_type": "integration_guide",
+        "summary": "Cursor-based pagination. Query params: limit (max 100), cursor, status filter, customerId filter. Role-based restriction: customerId filter requires admin role or matching sub claim."
+      }
+    },
+    {
+      "id": "doc:adr-001",
+      "label": "Doc",
+      "properties": {
+        "name": "001-database-choice.md",
+        "path": "docs/architecture/001-database-choice.md",
+        "doc_type": "adr",
+        "summary": "ADR: Chose MongoDB for flexible order schemas. Accepted. Consequence: no native ACID across documents, requires application-level two-phase commits."
+      }
+    },
+    {
+      "id": "doc:adr-002",
+      "label": "Doc",
+      "properties": {
+        "name": "002-async-messaging.md",
+        "path": "docs/architecture/002-async-messaging.md",
+        "doc_type": "adr",
+        "summary": "ADR: Chose RabbitMQ for async event-driven architecture. Accepted. OrderCreated event published to topic exchange. Consequence: eventual consistency, may need saga pattern."
+      }
+    }
+  ],
+  "edges": [
+    {
+      "id": "edge:frontend-depends-on-backend",
+      "label": "DEPENDS_ON",
+      "from": "repo:frontend-app",
+      "to": "repo:order-management-service",
+      "properties": {
+        "description": "Frontend application depends on the order-management-service REST API",
+        "weight": 1.0
+      }
+    },
+    {
+      "id": "edge:backend-contains-auth",
+      "label": "CONTAINS",
+      "from": "repo:order-management-service",
+      "to": "doc:auth",
+      "properties": {
+        "weight": 1.0
+      }
+    },
+    {
+      "id": "edge:backend-contains-orders-api",
+      "label": "CONTAINS",
+      "from": "repo:order-management-service",
+      "to": "doc:orders-api",
+      "properties": {
+        "weight": 1.0
+      }
+    },
+    {
+      "id": "edge:backend-contains-order-statuses",
+      "label": "CONTAINS",
+      "from": "repo:order-management-service",
+      "to": "doc:order-statuses",
+      "properties": {
+        "weight": 1.0
+      }
+    },
+    {
+      "id": "edge:backend-contains-webhooks",
+      "label": "CONTAINS",
+      "from": "repo:order-management-service",
+      "to": "doc:webhooks",
+      "properties": {
+        "weight": 1.0
+      }
+    },
+    {
+      "id": "edge:backend-contains-events",
+      "label": "CONTAINS",
+      "from": "repo:order-management-service",
+      "to": "doc:events",
+      "properties": {
+        "weight": 1.0
+      }
+    },
+    {
+      "id": "edge:backend-contains-error-handling",
+      "label": "CONTAINS",
+      "from": "repo:order-management-service",
+      "to": "doc:error-handling",
+      "properties": {
+        "weight": 1.0
+      }
+    },
+    {
+      "id": "edge:backend-contains-pagination",
+      "label": "CONTAINS",
+      "from": "repo:order-management-service",
+      "to": "doc:pagination",
+      "properties": {
+        "weight": 1.0
+      }
+    },
+    {
+      "id": "edge:backend-contains-adr-001",
+      "label": "CONTAINS",
+      "from": "repo:order-management-service",
+      "to": "doc:adr-001",
+      "properties": {
+        "weight": 1.0
+      }
+    },
+    {
+      "id": "edge:backend-contains-adr-002",
+      "label": "CONTAINS",
+      "from": "repo:order-management-service",
+      "to": "doc:adr-002",
+      "properties": {
+        "weight": 1.0
+      }
+    },
+    {
+      "id": "edge:pagination-references-orders-api",
+      "label": "REFERENCES",
+      "from": "doc:pagination",
+      "to": "doc:orders-api",
+      "properties": {
+        "description": "Pagination doc references orders-api for the base endpoint path and auth requirements",
+        "weight": 0.9
+      }
+    },
+    {
+      "id": "edge:pagination-references-auth",
+      "label": "REFERENCES",
+      "from": "doc:pagination",
+      "to": "doc:auth",
+      "properties": {
+        "description": "Pagination doc references auth for role-based customerId filter restriction",
+        "weight": 0.9
+      }
+    },
+    {
+      "id": "edge:error-handling-references-auth",
+      "label": "REFERENCES",
+      "from": "doc:error-handling",
+      "to": "doc:auth",
+      "properties": {
+        "description": "Error handling doc references auth for 401/403 distinction",
+        "weight": 0.8
+      }
+    },
+    {
+      "id": "edge:error-handling-references-adr-001",
+      "label": "REFERENCES",
+      "from": "doc:error-handling",
+      "to": "doc:adr-001",
+      "properties": {
+        "description": "Error handling doc references MongoDB ADR for non-ACID caveat",
+        "weight": 0.7
+      }
+    },
+    {
+      "id": "edge:orders-api-references-order-statuses",
+      "label": "REFERENCES",
+      "from": "doc:orders-api",
+      "to": "doc:order-statuses",
+      "properties": {
+        "description": "Orders API doc references order statuses for status field values",
+        "weight": 0.9
+      }
+    },
+    {
+      "id": "edge:orders-api-references-pagination",
+      "label": "REFERENCES",
+      "from": "doc:orders-api",
+      "to": "doc:pagination",
+      "properties": {
+        "description": "Orders API doc references pagination for list endpoint query params",
+        "weight": 0.8
+      }
+    },
+    {
+      "id": "edge:orders-api-references-error-handling",
+      "label": "REFERENCES",
+      "from": "doc:orders-api",
+      "to": "doc:error-handling",
+      "properties": {
+        "description": "Orders API doc references error handling for floating point pricing note",
+        "weight": 0.8
+      }
+    },
+    {
+      "id": "edge:order-statuses-references-webhooks",
+      "label": "REFERENCES",
+      "from": "doc:order-statuses",
+      "to": "doc:webhooks",
+      "properties": {
+        "description": "Order statuses doc references webhooks for PENDING->PAID transition mechanism",
+        "weight": 0.9
+      }
+    },
+    {
+      "id": "edge:order-statuses-references-events",
+      "label": "REFERENCES",
+      "from": "doc:order-statuses",
+      "to": "doc:events",
+      "properties": {
+        "description": "Order statuses doc references events for eventual consistency caveat",
+        "weight": 0.8
+      }
+    },
+    {
+      "id": "edge:events-references-adr-002",
+      "label": "REFERENCES",
+      "from": "doc:events",
+      "to": "doc:adr-002",
+      "properties": {
+        "description": "Events doc is the operational implementation of the async messaging ADR",
+        "weight": 0.9
+      }
+    }
+  ]
+}
