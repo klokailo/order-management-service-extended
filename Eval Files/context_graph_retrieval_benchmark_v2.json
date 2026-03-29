@@ -1,54 +1,23 @@
 {
   "question_type_coverage": {
     "information_extraction": [
-      1,
-      2,
-      3,
-      4,
-      5,
-      6,
-      7,
-      8,
-      9,
-      10,
-      11,
-      12,
-      13,
-      14,
       15,
       16,
       17,
       18,
       19,
-      20,
       21,
-      22,
       23,
-      24,
       25
     ],
     "multi_hop_retrieval": [
-      26,
-      27,
-      28,
-      29,
       30,
       31,
-      32,
       33,
       34,
-      35,
-      36,
-      37,
       38,
-      39,
-      40,
-      41,
       42,
       43,
-      44,
-      45,
-      46,
       47,
       48,
       49,
@@ -57,7 +26,6 @@
       102,
       103,
       104,
-      105,
       106,
       107,
       108,
@@ -75,233 +43,56 @@
       120
     ],
     "knowledge_update": [
-      51,
-      52,
-      53,
       54,
       55,
-      56,
       57,
       58,
-      59,
-      60,
       61,
-      62,
       63,
-      64,
-      65,
       66,
       67,
       68,
-      69,
       70,
       121,
       122,
       123,
       124,
       125,
-      126,
-      127,
-      128,
-      129,
-      130
+      126
     ],
     "temporal_reasoning": [
-      71,
-      72,
-      73,
-      74,
-      75,
       76,
       77,
-      78,
       79,
       80,
-      81,
-      82,
       83,
-      84,
       85,
       131,
       132,
       133,
       134,
       135,
-      136,
-      137,
       138
     ],
     "debugging_and_provenance": [
       86,
-      87,
-      88,
       89,
       90,
       91,
-      92,
       93,
       94,
       95,
-      96,
       97,
       98,
-      99,
-      100,
       139,
       140,
       141,
       142,
       143,
-      144,
-      145,
-      146,
-      147,
-      148,
-      149,
-      150
+      144
     ]
   },
   "eval_set": [
-    {
-      "id": 1,
-      "question": "What HTTP header format is required for authenticated requests?",
-      "expected_answer": "Authorization: Bearer <token>",
-      "documents": [
-        "docs/integration/auth.md"
-      ],
-      "hops": 1,
-      "leakage_risk": "MEDIUM"
-    },
-    {
-      "id": 2,
-      "question": "Which JWT claims does the auth middleware read into req.user?",
-      "expected_answer": "sub is mapped to req.user.id and role is mapped to req.user.role.",
-      "documents": [
-        "docs/integration/auth.md"
-      ],
-      "hops": 1,
-      "leakage_risk": "LOW"
-    },
-    {
-      "id": 3,
-      "question": "What happens when the client does not send x-correlation-id?",
-      "expected_answer": "The service generates a UUID server-side and echoes it back as x-correlation-id.",
-      "documents": [
-        "docs/integration/auth.md"
-      ],
-      "hops": 1,
-      "leakage_risk": "LOW"
-    },
-    {
-      "id": 4,
-      "question": "What is the maximum page size allowed on the public orders list endpoint?",
-      "expected_answer": "100",
-      "documents": [
-        "docs/integration/pagination.md"
-      ],
-      "hops": 1,
-      "leakage_risk": "LOW"
-    },
-    {
-      "id": 5,
-      "question": "What should nextCursor be when hasMore is false?",
-      "expected_answer": "null",
-      "documents": [
-        "docs/integration/pagination.md"
-      ],
-      "hops": 1,
-      "leakage_risk": "LOW"
-    },
-    {
-      "id": 6,
-      "question": "Which status values are valid for the public status filter?",
-      "expected_answer": "PENDING, PAID, SHIPPED, CANCELLED.",
-      "documents": [
-        "docs/integration/pagination.md"
-      ],
-      "hops": 1,
-      "leakage_risk": "LOW"
-    },
-    {
-      "id": 7,
-      "question": "What is the Stripe webhook endpoint path?",
-      "expected_answer": "POST /api/webhooks/stripe",
-      "documents": [
-        "docs/integration/webhooks.md"
-      ],
-      "hops": 1,
-      "leakage_risk": "LOW"
-    },
-    {
-      "id": 8,
-      "question": "Which header carries Stripe's webhook signature?",
-      "expected_answer": "stripe-signature",
-      "documents": [
-        "docs/integration/webhooks.md"
-      ],
-      "hops": 1,
-      "leakage_risk": "MEDIUM"
-    },
-    {
-      "id": 9,
-      "question": "Which PaymentIntent metadata field must be present for the webhook handler to link a payment back to an order?",
-      "expected_answer": "metadata.orderId",
-      "documents": [
-        "docs/integration/webhooks.md"
-      ],
-      "hops": 1,
-      "leakage_risk": "LOW"
-    },
-    {
-      "id": 10,
-      "question": "What does the service return when webhook signature verification fails?",
-      "expected_answer": "A plain text 400 body in the form Webhook Error: <message>, not JSON.",
-      "documents": [
-        "docs/integration/error-handling.md"
-      ],
-      "hops": 1,
-      "leakage_risk": "LOW"
-    },
-    {
-      "id": 11,
-      "question": "What formula does the service use to avoid floating point accumulation errors when calculating totalAmount?",
-      "expected_answer": "Math.round(sum(price * quantity) * 100) / 100",
-      "documents": [
-        "docs/integration/error-handling.md"
-      ],
-      "hops": 1,
-      "leakage_risk": "LOW"
-    },
-    {
-      "id": 12,
-      "question": "What routing key is used for order creation events?",
-      "expected_answer": "order.created",
-      "documents": [
-        "docs/integration/events.md"
-      ],
-      "hops": 1,
-      "leakage_risk": "LOW"
-    },
-    {
-      "id": 13,
-      "question": "What exchange type does the integration documentation specify for order events?",
-      "expected_answer": "topic",
-      "documents": [
-        "docs/integration/events.md"
-      ],
-      "hops": 1,
-      "leakage_risk": "LOW"
-    },
-    {
-      "id": 14,
-      "question": "What warning is logged when an order event is dropped because RabbitMQ is unavailable?",
-      "expected_answer": "RabbitMQ channel not established. Event dropped.",
-      "documents": [
-        "docs/integration/events.md"
-      ],
-      "hops": 1,
-      "leakage_risk": "LOW"
-    },
     {
       "id": 15,
       "question": "What is the default maximum number of attempts for an outbound webhook job?",
@@ -353,29 +144,9 @@
       "leakage_risk": "LOW"
     },
     {
-      "id": 20,
-      "question": "Which endpoint exposes Prometheus metrics?",
-      "expected_answer": "GET /metrics",
-      "documents": [
-        "docs/observability/prometheus-metrics.md"
-      ],
-      "hops": 1,
-      "leakage_risk": "LOW"
-    },
-    {
       "id": 21,
       "question": "What is the current canonical RabbitMQ exchange name for downstream integrations after the migration?",
       "expected_answer": "order_stream",
-      "documents": [
-        "docs/migrations/2026-03-12-order-stream-rollout.md"
-      ],
-      "hops": 1,
-      "leakage_risk": "LOW"
-    },
-    {
-      "id": 22,
-      "question": "What durability setting remained unchanged during the order stream migration?",
-      "expected_answer": "The exchange remains durable=true.",
       "documents": [
         "docs/migrations/2026-03-12-order-stream-rollout.md"
       ],
@@ -393,16 +164,6 @@
       "leakage_risk": "LOW"
     },
     {
-      "id": 24,
-      "question": "Which field is explicitly indexed on the audit log model?",
-      "expected_answer": "orderId",
-      "documents": [
-        "src/models/AuditLog.ts"
-      ],
-      "hops": 1,
-      "leakage_risk": "LOW"
-    },
-    {
       "id": 25,
       "question": "When operations manually retries a dead webhook job, what historical field is intentionally not reset?",
       "expected_answer": "attemptCount is preserved.",
@@ -410,51 +171,6 @@
         "docs/runbooks/webhook-dead-letter-replay.md"
       ],
       "hops": 1,
-      "leakage_risk": "LOW"
-    },
-    {
-      "id": 26,
-      "question": "Why can a request to GET /api/orders with a customerId parameter return 403 even when the token is valid?",
-      "expected_answer": "If the authenticated user's sub does not match the requested customerId and the role is not admin, the request is forbidden.",
-      "documents": [
-        "docs/integration/pagination.md",
-        "docs/integration/auth.md"
-      ],
-      "hops": 2,
-      "leakage_risk": "LOW"
-    },
-    {
-      "id": 27,
-      "question": "A Stripe payment succeeded and the webhook endpoint acknowledged the event, but the order stayed PENDING. What repository-specific cause best explains that outcome?",
-      "expected_answer": "The PaymentIntent was created without metadata.orderId, so the webhook could not link the payment back to the order.",
-      "documents": [
-        "docs/integration/webhooks.md",
-        "https://github.com/dkucz/order-management-service-extended/issues/4"
-      ],
-      "hops": 2,
-      "leakage_risk": "LOW"
-    },
-    {
-      "id": 28,
-      "question": "When migrating a consumer to the new exchange, what must be changed and what should stay the same?",
-      "expected_answer": "Change the exchange name to order_stream, but keep the routing key, payload shape, topic type, and durable setting unchanged.",
-      "documents": [
-        "docs/migrations/2026-03-12-order-stream-rollout.md",
-        "docs/runbooks/order-stream-cutover.md"
-      ],
-      "hops": 2,
-      "leakage_risk": "LOW"
-    },
-    {
-      "id": 29,
-      "question": "Why is inventory not guaranteed to be reserved when POST /api/orders returns 201?",
-      "expected_answer": "Order creation returns before downstream event consumers finish, and if RabbitMQ is unavailable the publish can be dropped without failing the order creation response.",
-      "documents": [
-        "docs/integration/events.md",
-        "docs/integration/error-handling.md",
-        "docs/architecture/002-async-messaging.md"
-      ],
-      "hops": 3,
       "leakage_risk": "LOW"
     },
     {
@@ -477,18 +193,6 @@
         "docs/releases/2026-03-15-v1.6.0.md",
         "docs/migrations/2026-03-12-order-stream-rollout.md",
         "docs/integration/events-migration.md"
-      ],
-      "hops": 3,
-      "leakage_risk": "LOW"
-    },
-    {
-      "id": 32,
-      "question": "If distributed tracing is degraded, what existing mechanism should operators keep using and why?",
-      "expected_answer": "They should keep using x-correlation-id because the repo treats it as a complementary log-tracing mechanism even after OpenTelemetry was added.",
-      "documents": [
-        "docs/guides/tracing-implementation-notes.md",
-        "docs/releases/2026-03-15-v1.6.0.md",
-        "history/pull-requests/143-otel-rabbitmq-context.md"
       ],
       "hops": 3,
       "leakage_risk": "LOW"
@@ -518,40 +222,6 @@
       "leakage_risk": "LOW"
     },
     {
-      "id": 35,
-      "question": "How should operations manually replay a dead webhook job while preserving traceability?",
-      "expected_answer": "Authenticate to the admin route, inspect jobs or stats, POST /webhooks/jobs/:id/retry, and carry forward the original x-correlation-id when possible.",
-      "documents": [
-        "docs/runbooks/webhook-dead-letter-replay.md",
-        "src/routes/webhookAdmin.ts",
-        "docs/integration/auth.md"
-      ],
-      "hops": 3,
-      "leakage_risk": "LOW"
-    },
-    {
-      "id": 36,
-      "question": "Under what conditions will the worker move a webhook job to dead instead of scheduling another retry?",
-      "expected_answer": "The job becomes dead when the completed attempt count reaches maxAttempts or when the dispatcher marks the failure as non-retryable.",
-      "documents": [
-        "src/jobs/webhookWorker.ts",
-        "src/webhooks/dispatcher.ts"
-      ],
-      "hops": 2,
-      "leakage_risk": "LOW"
-    },
-    {
-      "id": 37,
-      "question": "How many webhook attempts can occur before a job is dead, and how long can that dead record remain in MongoDB afterward?",
-      "expected_answer": "A job can be attempted up to 8 times, and dead records can remain for 30 days before the TTL index purges them.",
-      "documents": [
-        "src/models/WebhookJob.ts",
-        "docs/webhooks/retry-strategy.md"
-      ],
-      "hops": 2,
-      "leakage_risk": "LOW"
-    },
-    {
       "id": 38,
       "question": "If a receiver returns HTTP 429 for an outbound webhook, what happens next in this system?",
       "expected_answer": "The dispatcher treats 429 as retryable, so the worker marks the job failed and reschedules it with backoff unless it has already exhausted maxAttempts.",
@@ -561,40 +231,6 @@
         "src/webhooks/backoff.ts"
       ],
       "hops": 3,
-      "leakage_risk": "LOW"
-    },
-    {
-      "id": 39,
-      "question": "Why did missing correlation IDs in audit rows not break order updates themselves?",
-      "expected_answer": "Audit logging is intentionally best-effort and non-blocking, so business logic still succeeds even when correlationId is missing or audit writes fail.",
-      "documents": [
-        "https://github.com/dkucz/order-management-service-extended/issues/6",
-        "docs/features/audit-logging.md",
-        "src/services/auditService.ts"
-      ],
-      "hops": 3,
-      "leakage_risk": "LOW"
-    },
-    {
-      "id": 40,
-      "question": "What evidence shows that audit logs are append-only tracing records rather than mutable business state?",
-      "expected_answer": "The feature doc says the collection is write-only and separate from orders, and the model stores timestamped records indexed by orderId instead of embedding history in the Order document.",
-      "documents": [
-        "docs/features/audit-logging.md",
-        "src/models/AuditLog.ts"
-      ],
-      "hops": 2,
-      "leakage_risk": "LOW"
-    },
-    {
-      "id": 41,
-      "question": "What security model applies to the Stripe webhook route, and what middleware must not be added there?",
-      "expected_answer": "The route should use Stripe signature verification on the raw payload and must not be protected with JWT auth middleware.",
-      "documents": [
-        "src/routes/webhooks.ts",
-        "https://github.com/dkucz/order-management-service-extended/issues/2"
-      ],
-      "hops": 2,
       "leakage_risk": "LOW"
     },
     {
@@ -618,40 +254,6 @@
         "src/events/publisher.ts"
       ],
       "hops": 3,
-      "leakage_risk": "LOW"
-    },
-    {
-      "id": 44,
-      "question": "When operations manually retries a webhook job, what two fields are changed immediately and which historical field is kept?",
-      "expected_answer": "The admin route sets status back to pending and nextRunAt to now, while preserving attemptCount.",
-      "documents": [
-        "src/routes/webhookAdmin.ts",
-        "docs/runbooks/webhook-dead-letter-replay.md"
-      ],
-      "hops": 2,
-      "leakage_risk": "LOW"
-    },
-    {
-      "id": 45,
-      "question": "If operations manually retries a dead job right now, when can the worker pick it up?",
-      "expected_answer": "Immediately on the next worker poll cycle, which runs every 5 seconds, because retry sets nextRunAt to now and status to pending.",
-      "documents": [
-        "docs/runbooks/webhook-dead-letter-replay.md",
-        "src/routes/webhookAdmin.ts",
-        "src/jobs/webhookWorker.ts"
-      ],
-      "hops": 3,
-      "leakage_risk": "LOW"
-    },
-    {
-      "id": 46,
-      "question": "Why does an outbound webhook that gets HTTP 400 from the receiver usually stop retrying automatically?",
-      "expected_answer": "HTTP 400 is treated as non-retryable by the dispatcher, so the worker moves the job to dead instead of rescheduling it.",
-      "documents": [
-        "src/webhooks/dispatcher.ts",
-        "src/jobs/webhookWorker.ts"
-      ],
-      "hops": 2,
       "leakage_risk": "LOW"
     },
     {
@@ -704,39 +306,6 @@
       "leakage_risk": "LOW"
     },
     {
-      "id": 51,
-      "question": "What changed in the public event exchange configuration during the migration?",
-      "expected_answer": "The canonical exchange name changed from order_events to order_stream.",
-      "documents": [
-        "docs/integration/events.md",
-        "docs/migrations/2026-03-12-order-stream-rollout.md"
-      ],
-      "hops": 2,
-      "leakage_risk": "LOW"
-    },
-    {
-      "id": 52,
-      "question": "After the migration, which exchange should all new downstream integrations use?",
-      "expected_answer": "order_stream",
-      "documents": [
-        "docs/migrations/2026-03-12-order-stream-rollout.md",
-        "docs/releases/2026-03-15-v1.6.0.md"
-      ],
-      "hops": 2,
-      "leakage_risk": "LOW"
-    },
-    {
-      "id": 53,
-      "question": "Which exchange name did the older integration documentation advertise before the migration guide superseded it?",
-      "expected_answer": "order_events",
-      "documents": [
-        "docs/integration/events.md",
-        "docs/integration/events-migration.md"
-      ],
-      "hops": 2,
-      "leakage_risk": "LOW"
-    },
-    {
       "id": 54,
       "question": "Which parts of the event topology explicitly did not change during the order_stream rollout?",
       "expected_answer": "The exchange type stayed topic, durability stayed true, the routing key order.created stayed the same, and the payload shape did not change.",
@@ -754,17 +323,6 @@
       "documents": [
         "docs/releases/2026-03-15-v1.6.0.md",
         "history/pull-requests/143-otel-rabbitmq-context.md"
-      ],
-      "hops": 2,
-      "leakage_risk": "LOW"
-    },
-    {
-      "id": 56,
-      "question": "Before the retry bug fix landed, what behavior caused webhook retries to occur too quickly?",
-      "expected_answer": "The worker computed the next retry time using the stale stored attemptCount before treating the current try as completed.",
-      "documents": [
-        "https://github.com/dkucz/order-management-service-extended/issues/5",
-        "https://github.com/dkucz/order-management-service-extended/pull/10"
       ],
       "hops": 2,
       "leakage_risk": "LOW"
@@ -793,46 +351,12 @@
       "leakage_risk": "LOW"
     },
     {
-      "id": 59,
-      "question": "Which source became explicitly non-canonical for external pagination after the clarification work?",
-      "expected_answer": "The page-based Swagger annotations in src/routes/orders.ts.",
-      "documents": [
-        "https://github.com/dkucz/order-management-service-extended/issues/3",
-        "https://github.com/dkucz/order-management-service-extended/pull/8",
-        "src/routes/orders.ts"
-      ],
-      "hops": 3,
-      "leakage_risk": "LOW"
-    },
-    {
-      "id": 60,
-      "question": "Before the audit correlation fix, which audit field could silently be missing on some order state changes?",
-      "expected_answer": "correlationId",
-      "documents": [
-        "https://github.com/dkucz/order-management-service-extended/issues/6",
-        "src/services/orderService.ts"
-      ],
-      "hops": 2,
-      "leakage_risk": "LOW"
-    },
-    {
       "id": 61,
       "question": "After the audit correlation fix, what fallback is used when updateOrderStatus is called without an explicit correlationId argument?",
       "expected_answer": "The service falls back to the global async correlation context stored on __CORRELATION_ID__.",
       "documents": [
         "https://github.com/dkucz/order-management-service-extended/issues/6",
         "src/services/orderService.ts"
-      ],
-      "hops": 2,
-      "leakage_risk": "LOW"
-    },
-    {
-      "id": 62,
-      "question": "Before OpenTelemetry propagation was added, what mechanism was the team primarily relying on for request tracing in logs?",
-      "expected_answer": "x-correlation-id based log tracing.",
-      "documents": [
-        "docs/guides/tracing-implementation-notes.md",
-        "docs/integration/auth.md"
       ],
       "hops": 2,
       "leakage_risk": "LOW"
@@ -847,28 +371,6 @@
         "docs/releases/2026-03-15-v1.6.0.md"
       ],
       "hops": 3,
-      "leakage_risk": "LOW"
-    },
-    {
-      "id": 64,
-      "question": "Before the webhook retry fix, which value effectively drove nextAttemptDate scheduling?",
-      "expected_answer": "The stale stored attemptCount rather than the completed attempt count.",
-      "documents": [
-        "https://github.com/dkucz/order-management-service-extended/issues/5",
-        "src/jobs/webhookWorker.ts"
-      ],
-      "hops": 2,
-      "leakage_risk": "LOW"
-    },
-    {
-      "id": 65,
-      "question": "After the retry fix, which value is used for nextAttemptDate scheduling?",
-      "expected_answer": "completedAttemptCount",
-      "documents": [
-        "https://github.com/dkucz/order-management-service-extended/pull/10",
-        "src/jobs/webhookWorker.ts"
-      ],
-      "hops": 2,
       "leakage_risk": "LOW"
     },
     {
@@ -905,16 +407,6 @@
       "leakage_risk": "LOW"
     },
     {
-      "id": 69,
-      "question": "Before naming was standardized, which three exchange names were explicitly called out as circulating in the repo and surrounding systems?",
-      "expected_answer": "order_events, order-events, and order_stream.",
-      "documents": [
-        "history/issues/176-order-stream-exchange-rename.md"
-      ],
-      "hops": 1,
-      "leakage_risk": "LOW"
-    },
-    {
       "id": 70,
       "question": "After the migration guidance landed, which name is the external contract and which legacy name can still appear in internal topology code?",
       "expected_answer": "The external contract is order_stream, while internal topology code may still mention the legacy hyphenated name order-events.",
@@ -922,62 +414,6 @@
         "docs/migrations/2026-03-12-order-stream-rollout.md",
         "src/events/rabbitmqSetup.ts",
         "docs/releases/2026-03-15-v1.6.0.md"
-      ],
-      "hops": 3,
-      "leakage_risk": "LOW"
-    },
-    {
-      "id": 71,
-      "question": "As of 2026-03-11, which exchange should a new downstream consumer have used?",
-      "expected_answer": "order_events",
-      "documents": [
-        "docs/migrations/2026-03-12-order-stream-rollout.md",
-        "docs/integration/events.md"
-      ],
-      "hops": 2,
-      "leakage_risk": "LOW"
-    },
-    {
-      "id": 72,
-      "question": "As of 2026-03-13, which exchange should a new downstream consumer use?",
-      "expected_answer": "order_stream",
-      "documents": [
-        "docs/migrations/2026-03-12-order-stream-rollout.md",
-        "docs/releases/2026-03-15-v1.6.0.md"
-      ],
-      "hops": 2,
-      "leakage_risk": "LOW"
-    },
-    {
-      "id": 73,
-      "question": "On 2026-03-18, during the pagination contract confusion incident, which pagination scheme was still canonical for external clients?",
-      "expected_answer": "Cursor-based pagination.",
-      "documents": [
-        "docs/incidents/2026-03-18-pagination-contract-confusion.md",
-        "docs/integration/pagination.md"
-      ],
-      "hops": 2,
-      "leakage_risk": "LOW"
-    },
-    {
-      "id": 74,
-      "question": "Before 2026-03-21, what retry bug could cause webhook retries to arrive sooner than expected?",
-      "expected_answer": "The worker scheduled retries using the stale attemptCount instead of the completed attempt count.",
-      "documents": [
-        "https://github.com/dkucz/order-management-service-extended/issues/5",
-        "docs/releases/2026-03-21-v1.6.1.md"
-      ],
-      "hops": 2,
-      "leakage_risk": "LOW"
-    },
-    {
-      "id": 75,
-      "question": "After 2026-03-21, what logic determines whether a failed webhook job moves to dead?",
-      "expected_answer": "A job moves to dead when completedAttemptCount reaches maxAttempts or the error is non-retryable.",
-      "documents": [
-        "docs/releases/2026-03-21-v1.6.1.md",
-        "src/jobs/webhookWorker.ts",
-        "src/webhooks/dispatcher.ts"
       ],
       "hops": 3,
       "leakage_risk": "LOW"
@@ -1006,17 +442,6 @@
       "leakage_risk": "LOW"
     },
     {
-      "id": 78,
-      "question": "Before 2026-03-12, what exchange and routing key should a consumer bind to for order creation events?",
-      "expected_answer": "Exchange order_events with routing key order.created.",
-      "documents": [
-        "docs/integration/events.md",
-        "docs/migrations/2026-03-12-order-stream-rollout.md"
-      ],
-      "hops": 2,
-      "leakage_risk": "LOW"
-    },
-    {
       "id": 79,
       "question": "After 2026-03-12, if a consumer updated only the routing key but not the exchange name, would that fix the migration issue?",
       "expected_answer": "No. The routing key did not change, so the required update was the exchange name to order_stream.",
@@ -1039,28 +464,6 @@
       "leakage_risk": "LOW"
     },
     {
-      "id": 81,
-      "question": "Before the 2026-03-17 audit-correlation fix, why could audit rows lack a correlationId?",
-      "expected_answer": "Because some async updateOrderStatus call paths did not pass the optional correlationId through to audit logging.",
-      "documents": [
-        "https://github.com/dkucz/order-management-service-extended/issues/6",
-        "src/services/orderService.ts"
-      ],
-      "hops": 2,
-      "leakage_risk": "LOW"
-    },
-    {
-      "id": 82,
-      "question": "After the audit fix, what fallback preserves correlation IDs on those async paths?",
-      "expected_answer": "The global async correlation context stored on __CORRELATION_ID__.",
-      "documents": [
-        "https://github.com/dkucz/order-management-service-extended/issues/6",
-        "src/services/orderService.ts"
-      ],
-      "hops": 2,
-      "leakage_risk": "LOW"
-    },
-    {
       "id": 83,
       "question": "On 2026-03-19, if Swagger and the integration docs disagreed about order pagination, which source should the benchmark treat as the released external contract?",
       "expected_answer": "docs/integration/pagination.md",
@@ -1070,17 +473,6 @@
         "src/routes/orders.ts"
       ],
       "hops": 3,
-      "leakage_risk": "LOW"
-    },
-    {
-      "id": 84,
-      "question": "Before the migration guide was published on 2026-03-12, what exchange name did the older integration events document advertise?",
-      "expected_answer": "order_events",
-      "documents": [
-        "docs/integration/events.md",
-        "docs/migrations/2026-03-12-order-stream-rollout.md"
-      ],
-      "hops": 2,
       "leakage_risk": "LOW"
     },
     {
@@ -1104,28 +496,6 @@
         "docs/integration/webhooks.md"
       ],
       "hops": 3,
-      "leakage_risk": "LOW"
-    },
-    {
-      "id": 87,
-      "question": "Where in the codebase is the raw-body Stripe requirement enforced, and what problem is that middleware choice preventing?",
-      "expected_answer": "It is enforced in src/routes/webhooks.ts with express.raw({ type: 'application/json' }), which prevents JSON body parsing from corrupting the signed payload.",
-      "documents": [
-        "src/routes/webhooks.ts",
-        "https://github.com/dkucz/order-management-service-extended/issues/2"
-      ],
-      "hops": 2,
-      "leakage_risk": "LOW"
-    },
-    {
-      "id": 88,
-      "question": "Why can a webhook be delivered successfully yet still fail to move an order out of PENDING?",
-      "expected_answer": "Because successful delivery is not enough if paymentIntent.metadata.orderId is missing; the handler then has no way to link the payment to an order.",
-      "documents": [
-        "docs/integration/webhooks.md",
-        "https://github.com/dkucz/order-management-service-extended/issues/4"
-      ],
-      "hops": 2,
       "leakage_risk": "LOW"
     },
     {
@@ -1160,18 +530,6 @@
         "https://github.com/dkucz/order-management-service-extended/issues/5",
         "https://github.com/dkucz/order-management-service-extended/pull/10",
         "src/jobs/webhookWorker.ts"
-      ],
-      "hops": 3,
-      "leakage_risk": "LOW"
-    },
-    {
-      "id": 92,
-      "question": "Why might a consumer receive no new events after the exchange migration even though its routing key is still correct?",
-      "expected_answer": "Because the migration changed the exchange name, not the routing key, so a consumer still bound to order_events would miss traffic now published to order_stream.",
-      "documents": [
-        "history/issues/176-order-stream-exchange-rename.md",
-        "docs/migrations/2026-03-12-order-stream-rollout.md",
-        "docs/runbooks/order-stream-cutover.md"
       ],
       "hops": 3,
       "leakage_risk": "LOW"
@@ -1213,18 +571,6 @@
       "leakage_risk": "LOW"
     },
     {
-      "id": 96,
-      "question": "If OpenTelemetry headers break temporarily, how could an operator still follow a request through the repository's intended backup tracing path?",
-      "expected_answer": "By following the x-correlation-id carried in requests and echoed in logs, since the repo explicitly keeps correlation IDs even after adding OpenTelemetry.",
-      "documents": [
-        "docs/integration/auth.md",
-        "docs/releases/2026-03-15-v1.6.0.md",
-        "history/pull-requests/143-otel-rabbitmq-context.md"
-      ],
-      "hops": 3,
-      "leakage_risk": "LOW"
-    },
-    {
       "id": 97,
       "question": "Which evidence explains why internal code can still show order-events-dlx after the public exchange rename?",
       "expected_answer": "The RabbitMQ setup code still uses legacy hyphenated DLQ constants, and the migration guide plus PR review say those leftovers are internal implementation details rather than the external contract.",
@@ -1246,31 +592,6 @@
         "docs/releases/2026-03-21-v1.6.1.md"
       ],
       "hops": 3,
-      "leakage_risk": "LOW"
-    },
-    {
-      "id": 99,
-      "question": "What happens if someone calls the admin retry endpoint on a job that is already processing, and why?",
-      "expected_answer": "The route returns HTTP 400 because processing and succeeded jobs are explicitly blocked from manual retry.",
-      "documents": [
-        "src/routes/webhookAdmin.ts",
-        "docs/runbooks/webhook-dead-letter-replay.md"
-      ],
-      "hops": 2,
-      "leakage_risk": "LOW"
-    },
-    {
-      "id": 100,
-      "question": "A model answers that external /api/orders clients should use page, limit, and approximate total because Swagger says so. Which artifact chain disproves that claim?",
-      "expected_answer": "The Swagger block in src/routes/orders.ts is contradicted by the pagination drift issue, the pagination contract incident, and the clarification PR, all of which say the released public contract is still cursor-based.",
-      "documents": [
-        "src/routes/orders.ts",
-        "https://github.com/dkucz/order-management-service-extended/issues/3",
-        "docs/incidents/2026-03-18-pagination-contract-confusion.md",
-        "https://github.com/dkucz/order-management-service-extended/pull/8",
-        "docs/integration/pagination.md"
-      ],
-      "hops": 5,
       "leakage_risk": "LOW"
     },
     {
@@ -1330,20 +651,6 @@
         "src/webhooks/backoff.ts"
       ],
       "hops": 6,
-      "leakage_risk": "LOW"
-    },
-    {
-      "id": 105,
-      "question": "Which repository artifacts collectively explain why a PaymentIntent can succeed while the order remains PENDING with no signature errors?",
-      "expected_answer": "The webhooks integration doc, issue #233, error-handling doc, order-statuses doc, and the staging signature incident together show that successful delivery without metadata.orderId leaves the order in PENDING even when no signature error occurred.",
-      "documents": [
-        "docs/integration/webhooks.md",
-        "https://github.com/dkucz/order-management-service-extended/issues/4",
-        "docs/integration/error-handling.md",
-        "docs/integration/order-statuses.md",
-        "docs/incidents/2026-03-05-stripe-signature-staging-incident.md"
-      ],
-      "hops": 5,
       "leakage_risk": "LOW"
     },
     {
@@ -1643,60 +950,6 @@
       "leakage_risk": "LOW"
     },
     {
-      "id": 127,
-      "question": "Which artifacts show how the repository updated its guidance so benchmark systems should treat pagination conflicts as contract-drift problems rather than simple fact lookup?",
-      "expected_answer": "The pagination issue, incident, PR clarification, review thread, and ADR 004 all push the repo toward conflict resolution between sources instead of naive lookup.",
-      "documents": [
-        "https://github.com/dkucz/order-management-service-extended/issues/3",
-        "docs/incidents/2026-03-18-pagination-contract-confusion.md",
-        "https://github.com/dkucz/order-management-service-extended/pull/8",
-        "docs/architecture/004-public-api-contract-sources.md"
-      ],
-      "hops": 5,
-      "leakage_risk": "LOW"
-    },
-    {
-      "id": 128,
-      "question": "Which artifact chain shows the repository's observability update from request-local logging to a system that also preserves traceability during manual webhook replay and audit writes?",
-      "expected_answer": "Auth docs define request correlation IDs, PR #143 adds RabbitMQ trace propagation, PR #254 preserves audit correlation IDs, and the replay runbook instructs operators to carry forward the original correlation ID during manual retries.",
-      "documents": [
-        "docs/integration/auth.md",
-        "history/pull-requests/143-otel-rabbitmq-context.md",
-        "https://github.com/dkucz/order-management-service-extended/pull/11",
-        "docs/runbooks/webhook-dead-letter-replay.md",
-        "src/services/orderService.ts"
-      ],
-      "hops": 5,
-      "leakage_risk": "LOW"
-    },
-    {
-      "id": 129,
-      "question": "Which artifact chain shows that the repository's current stance is to preserve dead webhook jobs temporarily for debugging, then purge them automatically later?",
-      "expected_answer": "The WebhookJob TTL index, retry strategy doc, replay runbook, and v1.6.1 notes show a deliberate two-phase lifecycle: retain dead jobs for investigation and replay, then expire them after 30 days.",
-      "documents": [
-        "src/models/WebhookJob.ts",
-        "docs/webhooks/retry-strategy.md",
-        "docs/runbooks/webhook-dead-letter-replay.md",
-        "docs/releases/2026-03-21-v1.6.1.md"
-      ],
-      "hops": 4,
-      "leakage_risk": "LOW"
-    },
-    {
-      "id": 130,
-      "question": "Which artifact chain shows the updated separation between public API contract docs, release-note supersession, and non-authoritative operational or internal artifacts?",
-      "expected_answer": "ADR 004 defines the hierarchy, the migration and release notes supersede older event guidance, while runbooks and internal code remain useful context but not authoritative external contract sources.",
-      "documents": [
-        "docs/architecture/004-public-api-contract-sources.md",
-        "docs/migrations/2026-03-12-order-stream-rollout.md",
-        "docs/releases/2026-03-15-v1.6.0.md",
-        "docs/runbooks/order-stream-cutover.md",
-        "src/events/rabbitmqSetup.ts"
-      ],
-      "hops": 5,
-      "leakage_risk": "LOW"
-    },
-    {
       "id": 131,
       "question": "As of 2026-03-16, which exchange name was canonical for external consumers, and which tracing capability had already been added by then?",
       "expected_answer": "By 2026-03-16 external consumers should use order_stream, and RabbitMQ OpenTelemetry propagation had already been added in v1.6.0.",
@@ -1758,32 +1011,6 @@
         "https://github.com/dkucz/order-management-service-extended/pull/8",
         "docs/integration/pagination.md",
         "src/routes/orders.ts"
-      ],
-      "hops": 5,
-      "leakage_risk": "LOW"
-    },
-    {
-      "id": 136,
-      "question": "After 2026-03-17 but before any full async-context redesign, what audit correlation behavior should engineers expect?",
-      "expected_answer": "They should expect a defensive fallback to the existing async correlation context in orderService, while audit logging remains best-effort rather than transactional.",
-      "documents": [
-        "https://github.com/dkucz/order-management-service-extended/pull/11",
-        "src/services/orderService.ts",
-        "docs/features/audit-logging.md"
-      ],
-      "hops": 4,
-      "leakage_risk": "LOW"
-    },
-    {
-      "id": 137,
-      "question": "On 2026-03-05, if a Stripe event failed signature verification, which behavior should have been considered current and which alternate explanation should not be assumed by default?",
-      "expected_answer": "The current explanation should have been raw-body corruption in the webhook transport path, and engineers should not default to the missing metadata.orderId explanation because that causes PENDING orders without signature errors.",
-      "documents": [
-        "docs/incidents/2026-03-05-stripe-signature-staging-incident.md",
-        "https://github.com/dkucz/order-management-service-extended/issues/2",
-        "https://github.com/dkucz/order-management-service-extended/issues/4",
-        "docs/integration/webhooks.md",
-        "docs/integration/error-handling.md"
       ],
       "hops": 5,
       "leakage_risk": "LOW"
@@ -1886,97 +1113,6 @@
         "docs/features/audit-logging.md",
         "src/services/auditService.ts",
         "src/services/orderService.ts"
-      ],
-      "hops": 6,
-      "leakage_risk": "LOW"
-    },
-    {
-      "id": 145,
-      "question": "Why is it incorrect to answer pagination questions for external clients by citing only src/routes/orders.ts?",
-      "expected_answer": "Because ADR 004, the drift issue, the incident, PR #188, its review, and the integration doc collectively show that the route annotations are not the authoritative external contract when they conflict with docs/integration/pagination.md.",
-      "documents": [
-        "src/routes/orders.ts",
-        "docs/architecture/004-public-api-contract-sources.md",
-        "https://github.com/dkucz/order-management-service-extended/issues/3",
-        "docs/incidents/2026-03-18-pagination-contract-confusion.md",
-        "https://github.com/dkucz/order-management-service-extended/pull/8",
-        "docs/integration/pagination.md"
-      ],
-      "hops": 6,
-      "leakage_risk": "LOW"
-    },
-    {
-      "id": 146,
-      "question": "Why can a retrieval system be misled by order-events references in code when answering current integration questions?",
-      "expected_answer": "Because the current external contract was migrated to order_stream, while the repo still contains older documentation and internal legacy topology constants; the rename issue, migration guide, PR rollout, review, release notes, and rabbitmqSetup.ts together show that not every matching string reflects current external behavior.",
-      "documents": [
-        "history/issues/176-order-stream-exchange-rename.md",
-        "docs/migrations/2026-03-12-order-stream-rollout.md",
-        "history/pull-requests/176-order-stream-rollout.md",
-        "history/reviews/176-order-stream-rollout-review.md",
-        "docs/releases/2026-03-15-v1.6.0.md",
-        "src/events/rabbitmqSetup.ts"
-      ],
-      "hops": 6,
-      "leakage_risk": "LOW"
-    },
-    {
-      "id": 147,
-      "question": "Why does the repository treat manual webhook retry as an operational replay step rather than as a semantic reset of delivery history?",
-      "expected_answer": "Because the replay runbook, admin route, PR #241 review, WebhookJob model, and v1.6.1 notes all preserve attemptCount and retention metadata so operators can replay work without erasing the provenance needed for debugging.",
-      "documents": [
-        "docs/runbooks/webhook-dead-letter-replay.md",
-        "src/routes/webhookAdmin.ts",
-        "https://github.com/dkucz/order-management-service-extended/pull/10",
-        "src/models/WebhookJob.ts",
-        "docs/releases/2026-03-21-v1.6.1.md"
-      ],
-      "hops": 5,
-      "leakage_risk": "LOW"
-    },
-    {
-      "id": 148,
-      "question": "Why would a careful debugger examining a failed RabbitMQ trace look beyond the correlation ID middleware and into the publisher/tracing artifacts?",
-      "expected_answer": "Because the middleware only guarantees request-level x-correlation-id handling, whereas the trace-gap investigation, issue #142, tracing guide, PR #143, and publisher code explain that cross-broker trace continuity depends on OpenTelemetry header propagation.",
-      "documents": [
-        "src/middlewares/correlationId.ts",
-        "docs/investigations/2026-03-14-rabbitmq-trace-gap.md",
-        "history/issues/142-rabbitmq-tracing-context-loss.md",
-        "docs/guides/tracing-implementation-notes.md",
-        "history/pull-requests/143-otel-rabbitmq-context.md",
-        "src/events/publisher.ts"
-      ],
-      "hops": 6,
-      "leakage_risk": "LOW"
-    },
-    {
-      "id": 149,
-      "question": "Why should an engineer diagnosing missing order-created traffic consider both migration documents and internal legacy topology code before blaming consumers?",
-      "expected_answer": "Because the repo shows a real naming transition: migration docs and release notes moved the public contract to order_stream, while internal code still contains legacy hyphenated constants. A consumer may be correct about routing keys but still attached to the wrong exchange because of stale configuration or copied internal names.",
-      "documents": [
-        "docs/integration/events.md",
-        "docs/integration/events-migration.md",
-        "docs/migrations/2026-03-12-order-stream-rollout.md",
-        "docs/releases/2026-03-15-v1.6.0.md",
-        "docs/runbooks/order-stream-cutover.md",
-        "src/events/rabbitmqSetup.ts"
-      ],
-      "hops": 6,
-      "leakage_risk": "LOW"
-    },
-    {
-      "id": 150,
-      "question": "Why should a retrieval benchmark expect raw LLMs without graph-style retrieval to struggle with the repository's current pagination and migration questions?",
-      "expected_answer": "Because the repo now contains intentionally conflicting but valid artifacts across time and authority levels: older events docs versus migration/release supersession, Swagger versus integration-doc contract clarification, operational runbooks versus external API sources, and legacy internal code names versus current public names. Answering correctly requires reconciling source authority, time, and provenance rather than pulling one nearby snippet.",
-      "documents": [
-        "docs/architecture/004-public-api-contract-sources.md",
-        "docs/integration/events.md",
-        "docs/migrations/2026-03-12-order-stream-rollout.md",
-        "docs/releases/2026-03-15-v1.6.0.md",
-        "docs/integration/pagination.md",
-        "https://github.com/dkucz/order-management-service-extended/pull/8",
-        "src/events/rabbitmqSetup.ts",
-        "src/routes/orders.ts"
       ],
       "hops": 6,
       "leakage_risk": "LOW"

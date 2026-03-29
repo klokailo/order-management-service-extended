@@ -1,0 +1,212 @@
+{
+  "question_type_coverage": {
+    "information_extraction": [],
+    "multi_hop_retrieval": [
+      1,
+      2,
+      3,
+      4,
+      5,
+      6,
+      7,
+      8,
+      9,
+      10,
+      11,
+      12
+    ],
+    "knowledge_update": [
+      4,
+      5,
+      8,
+      12
+    ],
+    "temporal_reasoning": [
+      1,
+      8
+    ],
+    "debugging_and_provenance": [
+      1,
+      2,
+      3,
+      4,
+      5,
+      6,
+      7,
+      8,
+      9,
+      10,
+      11,
+      12
+    ]
+  },
+  "eval_set": [
+    {
+      "id": 1,
+      "question": "Why were webhook retries arriving too quickly in staging before v1.6.1?",
+      "expected_answer": "Because the worker rescheduled retries using the stale stored attemptCount instead of the completed attempt number, so backoff lagged behind the real attempt progression until the completedAttemptCount fix shipped in v1.6.1.",
+      "documents": [
+        "docs/investigations/2026-03-20-webhook-retry-timeline.md",
+        "https://github.com/dkucz/order-management-service-extended/issues/5",
+        "https://github.com/dkucz/order-management-service-extended/pull/10",
+        "src/jobs/webhookWorker.ts",
+        "docs/releases/2026-03-21-v1.6.1.md"
+      ],
+      "hops": 6,
+      "leakage_risk": "LOW"
+    },
+    {
+      "id": 2,
+      "question": "What evidence shows the webhook retry bug was in attempt bookkeeping rather than in the jitter formula itself?",
+      "expected_answer": "The retry investigation says the mismatch came from when an attempt was treated as completed, issue and PR #241 describe the stale-count bug, the worker code shows completedAttemptCount, and backoff.ts preserves the jitter formula rather than changing it.",
+      "documents": [
+        "docs/investigations/2026-03-20-webhook-retry-timeline.md",
+        "https://github.com/dkucz/order-management-service-extended/issues/5",
+        "https://github.com/dkucz/order-management-service-extended/pull/10",
+        "src/jobs/webhookWorker.ts",
+        "src/webhooks/backoff.ts"
+      ],
+      "hops": 6,
+      "leakage_risk": "LOW"
+    },
+    {
+      "id": 3,
+      "question": "Why can an edge proxy break Stripe webhook verification even if the forwarded JSON fields are identical?",
+      "expected_answer": "Because Stripe verifies the original raw bytes, not a parsed JSON object. The proxy can re-serialize the body, changing the payload that stripe-signature covers, which is why the route keeps express.raw and the PR/review call out raw-body guardrails.",
+      "documents": [
+        "https://github.com/dkucz/order-management-service-extended/issues/2",
+        "https://github.com/dkucz/order-management-service-extended/pull/7",
+        "docs/incidents/2026-03-05-stripe-signature-staging-incident.md",
+        "src/routes/webhooks.ts",
+        "docs/integration/webhooks.md"
+      ],
+      "hops": 6,
+      "leakage_risk": "LOW"
+    },
+    {
+      "id": 4,
+      "question": "Which artifact chain distinguishes the PaymentIntent metadata-linking bug from the Stripe signature-verification bug?",
+      "expected_answer": "Issue/PR/review #233 plus the webhook docs describe the missing metadata.orderId path where delivery can succeed but the order stays PENDING, while issue #87 and the staging incident describe the distinct bad-signature path that returns an explicit webhook error.",
+      "documents": [
+        "https://github.com/dkucz/order-management-service-extended/issues/4",
+        "https://github.com/dkucz/order-management-service-extended/pull/9",
+        "https://github.com/dkucz/order-management-service-extended/issues/2",
+        "docs/integration/webhooks.md",
+        "docs/integration/error-handling.md"
+      ],
+      "hops": 6,
+      "leakage_risk": "LOW"
+    },
+    {
+      "id": 5,
+      "question": "Why can a Stripe payment succeed while the order still remains PENDING with no signature error in the logs?",
+      "expected_answer": "Because the missing metadata.orderId bug is a linkage failure, not a delivery failure: the webhook can be received successfully, but without the orderId it cannot map the payment back to an order and the order stays PENDING.",
+      "documents": [
+        "https://github.com/dkucz/order-management-service-extended/issues/4",
+        "https://github.com/dkucz/order-management-service-extended/pull/9",
+        "docs/integration/webhooks.md",
+        "docs/integration/order-statuses.md"
+      ],
+      "hops": 5,
+      "leakage_risk": "LOW"
+    },
+    {
+      "id": 6,
+      "question": "Why did the audit correlation hotfix improve traceability without making audit logging transactional?",
+      "expected_answer": "Because the issue, PR #254, and its review explicitly frame the change as a defensive correlation-propagation patch, while the audit feature doc and audit service keep audit writes best-effort and non-blocking rather than required for business success.",
+      "documents": [
+        "https://github.com/dkucz/order-management-service-extended/issues/6",
+        "https://github.com/dkucz/order-management-service-extended/pull/11",
+        "docs/features/audit-logging.md",
+        "src/services/auditService.ts",
+        "src/services/orderService.ts"
+      ],
+      "hops": 6,
+      "leakage_risk": "LOW"
+    },
+    {
+      "id": 7,
+      "question": "Why should an engineer debugging external pagination behavior ignore the page-based Swagger block and trust the integration docs instead?",
+      "expected_answer": "Because the drift issue, incident, PR #188, review thread, and ADR 004 all say the Swagger block came from an internal admin flow, while docs/integration/pagination.md remains the authoritative external contract.",
+      "documents": [
+        "https://github.com/dkucz/order-management-service-extended/issues/3",
+        "https://github.com/dkucz/order-management-service-extended/pull/8",
+        "docs/incidents/2026-03-18-pagination-contract-confusion.md",
+        "docs/architecture/004-public-api-contract-sources.md",
+        "src/routes/orders.ts",
+        "docs/integration/pagination.md"
+      ],
+      "hops": 6,
+      "leakage_risk": "LOW"
+    },
+    {
+      "id": 8,
+      "question": "Why might a consumer with the correct routing key still miss order-created events after the exchange migration?",
+      "expected_answer": "Because the migration changed the exchange name, not the routing key. The issue, PR, review, migration guide, release notes, and cutover runbook all show that a consumer still bound to order_events or a copied legacy internal name will miss traffic that now goes to order_stream.",
+      "documents": [
+        "history/issues/176-order-stream-exchange-rename.md",
+        "history/pull-requests/176-order-stream-rollout.md",
+        "history/reviews/176-order-stream-rollout-review.md",
+        "docs/migrations/2026-03-12-order-stream-rollout.md",
+        "docs/releases/2026-03-15-v1.6.0.md",
+        "docs/runbooks/order-stream-cutover.md"
+      ],
+      "hops": 6,
+      "leakage_risk": "LOW"
+    },
+    {
+      "id": 9,
+      "question": "Why did the RabbitMQ trace-gap investigation conclude that correlation IDs alone were insufficient?",
+      "expected_answer": "Because correlation IDs only preserved request-level log traceability. The investigation, issue #142, tracing notes, PR #143, and publisher code show that end-to-end distributed traces across RabbitMQ required OpenTelemetry context injection into message headers.",
+      "documents": [
+        "docs/investigations/2026-03-14-rabbitmq-trace-gap.md",
+        "history/issues/142-rabbitmq-tracing-context-loss.md",
+        "docs/guides/tracing-implementation-notes.md",
+        "history/pull-requests/143-otel-rabbitmq-context.md",
+        "src/events/publisher.ts",
+        "docs/integration/auth.md"
+      ],
+      "hops": 6,
+      "leakage_risk": "LOW"
+    },
+    {
+      "id": 10,
+      "question": "Why does manual webhook replay preserve attemptCount instead of resetting delivery history?",
+      "expected_answer": "Because the replay workflow is designed as an operational retry, not as a semantic reset. The runbook, admin route, PR/review #241, and WebhookJob model preserve attempt history so operators can replay a job without erasing provenance needed for debugging.",
+      "documents": [
+        "docs/runbooks/webhook-dead-letter-replay.md",
+        "src/routes/webhookAdmin.ts",
+        "https://github.com/dkucz/order-management-service-extended/pull/10",
+        "src/models/WebhookJob.ts"
+      ],
+      "hops": 5,
+      "leakage_risk": "LOW"
+    },
+    {
+      "id": 11,
+      "question": "What design decision around the Stripe route is preserved in PR #87, and why is it important for future refactors?",
+      "expected_answer": "PR #87 preserves two guardrails: keep express.raw on the Stripe route and do not add JWT auth there. Those constraints matter because raw-body handling is required for signature verification and adding auth is a separate but common webhook-breaking refactor mistake.",
+      "documents": [
+        "https://github.com/dkucz/order-management-service-extended/issues/2",
+        "https://github.com/dkucz/order-management-service-extended/pull/7",
+        "src/routes/webhooks.ts",
+        "docs/incidents/2026-03-05-stripe-signature-staging-incident.md"
+      ],
+      "hops": 5,
+      "leakage_risk": "LOW"
+    },
+    {
+      "id": 12,
+      "question": "What design decision did PR #233 deliberately not implement, and why?",
+      "expected_answer": "PR #233 intentionally did not add server-side recovery for missing metadata.orderId. Instead it made the integration contract explicit so teams can diagnose the difference between a linkage bug and a webhook-signature bug without changing runtime behavior.",
+      "documents": [
+        "https://github.com/dkucz/order-management-service-extended/issues/4",
+        "https://github.com/dkucz/order-management-service-extended/pull/9",
+        "docs/integration/webhooks.md",
+        "docs/integration/order-statuses.md"
+      ],
+      "hops": 5,
+      "leakage_risk": "LOW"
+    }
+  ]
+}
