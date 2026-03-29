@@ -1,0 +1,1 @@
+Seed artifact for PR linked to issue #2 about Stripe raw-body guardrails.
