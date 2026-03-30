@@ -5,8 +5,10 @@ alwaysApply: true
 
 ### CONTEXT-GRAPH MCP ACCESS
 
-You have access to a context-graph MCP server. Use it for ALL information retrieval.
-Do NOT read repository files directly. Do NOT make any commits or code changes.
+You MUST start by using the context-graph MCP server for all information retrieval.
+Use it thoroughly before considering any other approach.
+Only if you have made multiple MCP attempts and still cannot find the answer may you fall back to reading repository files directly.
+Do NOT make any commits or code changes.
 
 **Use the wrapper script** — it handles the session handshake automatically:
 ```bash

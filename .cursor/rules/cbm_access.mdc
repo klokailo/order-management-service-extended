@@ -1,0 +1,19 @@
+---
+description: codebase-memory-mcp CLI for Condition D agents
+alwaysApply: true
+---
+
+### CODEBASE-MEMORY-MCP ACCESS
+
+Index the repo first (required each run):
+  codebase-memory-mcp cli index_repository '{"repo_path":"/workspace"}'
+
+**Tools:**
+  codebase-memory-mcp cli search_graph '{"name_pattern":"<regex>","label":"Function"}'
+  codebase-memory-mcp cli search_code '{"text":"<term>"}'
+  codebase-memory-mcp cli get_code_snippet '{"qualified_name":"<name>"}'
+  codebase-memory-mcp cli trace_call_path '{"function_name":"<name>","direction":"both"}'
+  codebase-memory-mcp cli query_graph '{"query":"MATCH (f:Function) WHERE f.name CONTAINS \"x\" RETURN f.name LIMIT 10"}'
+  codebase-memory-mcp cli get_architecture
+
+Do NOT read repository files directly. Do NOT commit, push, or modify files.
