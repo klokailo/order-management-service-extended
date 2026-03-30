@@ -5,8 +5,7 @@ alwaysApply: true
 
 ### CODEBASE-MEMORY-MCP ACCESS
 
-Index the repo first (required each run):
-  codebase-memory-mcp cli index_repository '{"repo_path":"/workspace"}'
+codebase-memory-mcp is already installed and the repo is already indexed. Start querying immediately.
 
 **Tools:**
   codebase-memory-mcp cli search_graph '{"name_pattern":"<regex>","label":"Function"}'
