@@ -1,5 +1,6 @@
 #!/bin/bash
 set -e
-chmod +x "$WORKSPACE_ROOT/.cursor/mcp.js"
+WORKSPACE="${WORKSPACE_ROOT:-/workspace}"
+chmod +x "$WORKSPACE/.cursor/mcp.js" 2>/dev/null || true
 mkdir -p "$HOME/bin"
-ln -sf "$WORKSPACE_ROOT/.cursor/mcp.js" "$HOME/bin/mcp"
+ln -sf "$WORKSPACE/.cursor/mcp.js" "$HOME/bin/mcp" 2>/dev/null || true
