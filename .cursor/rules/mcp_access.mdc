@@ -1,0 +1,47 @@
+---
+description: MCP context-graph access for Cursor Cloud Agents
+alwaysApply: true
+---
+
+### CONTEXT-GRAPH MCP ACCESS
+
+You have access to a context-graph MCP server. Use it for ALL information retrieval.
+Do NOT read repository files directly. Do NOT make any commits or code changes.
+
+**Use the wrapper script** — it handles the session handshake automatically:
+```bash
+bash .cursor/cg.sh <tool_name> '<json_arguments>'
+```
+
+**Available tools** (repo_id is always `"order-management-v2"`):
+
+`search_code` — text or regex search over indexed source files
+```bash
+bash .cursor/cg.sh search_code '{"repo_id":"order-management-v2","query":"YOUR TERM"}'
+# With regex:
+bash .cursor/cg.sh search_code '{"repo_id":"order-management-v2","query":"maxAttempts|MAX_ATTEMPTS","regex":true}'
+```
+
+`search_code_graph` — structural search over code graph nodes (functions, classes, files, variables)
+```bash
+bash .cursor/cg.sh search_code_graph '{"repo_id":"order-management-v2","query":"webhook"}'
+# Filter by kind (Function, Class, File, Variable, Module, Folder):
+bash .cursor/cg.sh search_code_graph '{"repo_id":"order-management-v2","query":"webhook","node_kinds":["Function"]}'
+```
+
+`get_code_snippet` — read source code for an exact qualified_name (get qualified_name from search_code_graph results)
+```bash
+bash .cursor/cg.sh get_code_snippet '{"repo_id":"order-management-v2","qualified_name":"order-management-v2.src.models.WebhookJob.__file__","include_neighbors":true}'
+```
+
+`trace_call_path` — BFS call graph from a qualified_name
+```bash
+bash .cursor/cg.sh trace_call_path '{"repo_id":"order-management-v2","qualified_name":"order-management-v2.src.webhooks.webhookService.enqueueWebhook","direction":"both","depth":3}'
+```
+
+`get_code_graph_schema` — list all node kinds and edge types in the graph
+```bash
+bash .cursor/cg.sh get_code_graph_schema '{"repo_id":"order-management-v2"}'
+```
+
+**Workflow:** Start with `search_code` (use regex for broader queries). Use `qualified_name` values from results to call `get_code_snippet` or `trace_call_path` for deeper context.
